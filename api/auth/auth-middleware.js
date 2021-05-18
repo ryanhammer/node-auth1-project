@@ -29,18 +29,18 @@ const restricted = (req, res, next) => {
 */
 const checkUsernameFree = (req, res, next) => {
   Users.findBy(req.body.username)
-  .then(([user]) => {
-    if (user) {
-      next();
-    } else {
-      res.status(422).json({
+    .then(([user]) => {
+      if (user) {
+        res.status(422).json({
           message: "Username taken"
       });
-    }
-  })
-  .catch(err => {
-    next(err);
-  })
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    })
 }
 
 /*
@@ -51,8 +51,20 @@ const checkUsernameFree = (req, res, next) => {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
-
+const checkUsernameExists = (req, res, next) => {
+  Users.findBy(req.body.username)
+    .then(([user]) => {
+      if (user) {
+        next();
+      } else {
+        res.status(401).json({
+            message: "Invalid credentials"
+        });
+      }
+    })
+    .catch(err => {
+      next(err);
+    })
 }
 
 /*
@@ -63,8 +75,15 @@ function checkUsernameExists() {
     "message": "Password must be longer than 3 chars"
   }
 */
-function checkPasswordLength() {
-
+const checkPasswordLength = (req, res, next) => {
+  const password = req.body.password;
+  if (!password || password.trim().length < 3) {
+    res.status(422).json({
+      message: "Password must be longer than 3 chars"
+    });
+  } else {
+    next();
+  }
 }
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
